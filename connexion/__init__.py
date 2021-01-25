@@ -44,5 +44,13 @@ except ImportError as e:  # pragma: no cover
     AioHttpApi = _aiohttp_not_installed_error
     AioHttpApp = _aiohttp_not_installed_error
 
+try:
+    from .apis.quart_api import QuartApi
+    from .apps.quart_app import QuartApp
+except ImportError as e: # pragma: no cover
+    _quart_not_installed_error = not_installed_error(e)
+    QuartApi = _quart_not_installed_error
+    QuartApp = _quart_not_installed_error
+
 # This version is replaced during release process.
 __version__ = '2020.0.dev1'
