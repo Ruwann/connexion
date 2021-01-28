@@ -275,7 +275,7 @@ class InternalHandlers:
         self.options = options
         self.specification = specification
 
-    def console_ui_home(self):
+    async def console_ui_home(self):
         """
         Home page of the OpenAPI Console UI.
 
@@ -292,9 +292,9 @@ class InternalHandlers:
         }
         if self.options.openapi_console_ui_config is not None:
             template_variables['configUrl'] = 'swagger-ui-config.json'
-        return quart.render_template('index.j2', **template_variables)
+        return await quart.render_template('index.j2', **template_variables)
 
-    def console_ui_static_files(self, filename):
+    async def console_ui_static_files(self, filename):
         """
         Servers the static files for the OpenAPI Console UI.
 
@@ -303,7 +303,7 @@ class InternalHandlers:
         """
         # convert PosixPath to str
         static_dir = str(self.options.openapi_console_ui_from_dir)
-        return quart.send_from_directory(static_dir, filename)
+        return await quart.send_from_directory(static_dir, filename)
 
     def get_json_spec(self):
         return quart.jsonify(self._spec_for_prefix())
