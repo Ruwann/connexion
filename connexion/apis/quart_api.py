@@ -1,4 +1,6 @@
+import asyncio
 import logging
+import warnings
 
 import hypercorn
 import quart
@@ -8,12 +10,18 @@ from connexion.apis import flask_utils
 from connexion.handlers import AuthErrorHandler
 from connexion.jsonifier import Jsonifier
 from connexion.lifecycle import ConnexionRequest, ConnexionResponse
+from connexion.security import QuartSecurityHandlerFactory
 from connexion.utils import is_json_mimetype, yamldumper
 
 logger = logging.getLogger('connexion.apis.quart_api')
 
 
 class QuartApi(AbstractAPI):
+
+    @staticmethod
+    def make_security_handler_factory(pass_context_arg_name):
+        """ Create default SecurityHandlerFactory to create all security check handlers """
+        return QuartSecurityHandlerFactory(pass_context_arg_name)
 
     def _set_base_path(self, base_path):
         super()._set_base_path(base_path)
@@ -111,7 +119,7 @@ class QuartApi(AbstractAPI):
         endpoint_name = flask_utils.flaskify_endpoint(operation.operation_id,
                                                       operation.randomize_endpoint)
         function = operation.function
-        self.blueprint.add_url_rule(flask_path, endpoint_name, function, methods=[method])
+        self.blueprint.add_url_rule(quart_path, endpoint_name, function, methods=[method])
 
     @property
     def _handlers(self):
@@ -121,7 +129,7 @@ class QuartApi(AbstractAPI):
         return self._internal_handlers
 
     @classmethod
-    def get_response(cls, response, mimetype=None, request=None):
+    async def get_response(cls, response, mimetype=None, request=None):
         """Gets ConnexionResponse instance for the operation handler
         result. Status Code and Headers for response.  If only body
         data is returned by the endpoint function, then the status
@@ -133,6 +141,9 @@ class QuartApi(AbstractAPI):
         :type response: flask.Response | (flask.Response,) | (flask.Response, int) | (flask.Response, dict) | (flask.Response, int, dict)
         :rtype: ConnexionResponse
         """
+        while asyncio.iscoroutine(response):
+            response = await response
+
         return cls._get_response(response, mimetype=mimetype, extra_context={"url": quart.request.url})
 
     @classmethod
@@ -207,7 +218,7 @@ class QuartApi(AbstractAPI):
         return body, mimetype
 
     @classmethod
-    def get_request(cls, *args, **params):
+    async def get_request(cls, *args, **params):
         # type: (*Any, **Any) -> ConnexionRequest
         """Gets ConnexionRequest instance for the operation handler
         result. Status Code and Headers for response.  If only body
@@ -222,15 +233,19 @@ class QuartApi(AbstractAPI):
         context_dict = {}
         setattr(quart._request_ctx_stack.top, 'connexion_context', context_dict)
         quart_request = quart.request
+        body = await quart_request.get_data()
+        # TODO: Check whether to use quart_json, or whether to use cls.jsonifier.loads(body)
+        quart_json = await quart_request.get_json(silent=True)
         request = ConnexionRequest(
             quart_request.url,
             quart_request.method,
             headers=quart_request.headers,
-            form=quart_request.form,
+            form=await quart_request.form,
             query=quart_request.args,
-            body=quart_request.get_data(),
-            json_getter=lambda: quart_request.get_json(silent=True),
-            files=quart_request.files,
+            body=body,
+            json_getter=lambda: quart_json,
+            # json_getter=lambda: cls.jsonifier.loads(body),
+            files=await quart_request.files,
             path_params=params,
             context=context_dict
         )
@@ -247,7 +262,7 @@ class QuartApi(AbstractAPI):
         """
         Use Flask specific JSON loader
         """
-        cls.jsonifier = Jsonifier(flask.json, indent=2)
+        cls.jsonifier = Jsonifier(quart.json, indent=2)
 
 
 class InternalHandlers:

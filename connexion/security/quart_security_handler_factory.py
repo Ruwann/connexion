@@ -9,7 +9,7 @@ from .async_security_handler_factory import AbstractAsyncSecurityHandlerFactory
 logger = logging.getLogger('connexion.security.quart_security_handler_factory')
 
 
-class AioHttpSecurityHandlerFactory(AbstractAsyncSecurityHandlerFactory):
+class QuartSecurityHandlerFactory(AbstractAsyncSecurityHandlerFactory):
     def __init__(self, pass_context_arg_name):
         super().__init__(pass_context_arg_name)
         self.client_session = None

@@ -1,4 +1,5 @@
 import logging
+import pathlib
 
 import hypercorn
 import quart
@@ -15,7 +16,8 @@ logger = logging.getLogger('connexion.apps.quart_app')
 class QuartApp(AbstractApp):
 
     def __init__(self, import_name, server='hypercorn', **kwargs):
-        super().__init__(import_name, QuartApp, server=server, **kwargs)
+        print(kwargs)
+        super().__init__(import_name, QuartApi, server=server, **kwargs)
 
     def create_app(self):
         app = quart.Quart(self.import_name, **self.server_args)
@@ -33,7 +35,7 @@ class QuartApp(AbstractApp):
         self.add_error_handler(ProblemException, self.common_error_handler)
 
     @staticmethod
-    def common_error_handler(exception):
+    async def common_error_handler(exception):
         """
         :type exception: Exception
         """
@@ -49,7 +51,7 @@ class QuartApp(AbstractApp):
             response = problem(title=exception.name, detail=exception.description,
                                status=exception.status_code)
 
-        return QuartApi.get_response(response)
+        return await QuartApi.get_response(response)
 
     def add_api(self, specification, **kwargs):
         api = super().add_api(specification, **kwargs)
