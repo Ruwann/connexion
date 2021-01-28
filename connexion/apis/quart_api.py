@@ -265,6 +265,13 @@ class QuartApi(AbstractAPI):
         cls.jsonifier = Jsonifier(quart.json, indent=2)
 
 
+def _get_context():
+    return getattr(quart._request_ctx_stack.top, 'connexion_context')
+
+
+context = quart.local.LocalProxy(_get_context)
+
+
 class InternalHandlers:
     """
     Quart handlers for internally registered endpoints.
