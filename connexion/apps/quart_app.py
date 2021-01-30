@@ -16,7 +16,6 @@ logger = logging.getLogger('connexion.apps.quart_app')
 class QuartApp(AbstractApp):
 
     def __init__(self, import_name, server='hypercorn', **kwargs):
-        print(kwargs)
         super().__init__(import_name, QuartApi, server=server, **kwargs)
 
     def create_app(self):
