@@ -1,18 +1,19 @@
 import asyncio
 import logging
 
-import aiohttp
+import httpx
 import quart
 
 from .async_security_handler_factory import AbstractAsyncSecurityHandlerFactory
 
 logger = logging.getLogger('connexion.security.quart_security_handler_factory')
 
+client = httpx.AsyncClient(limits=httpx.Limits(max_connections=100))
+
 
 class QuartSecurityHandlerFactory(AbstractAsyncSecurityHandlerFactory):
     def __init__(self, pass_context_arg_name):
         super().__init__(pass_context_arg_name)
-        self.client_session = None
 
     def get_token_info_remote(self, token_info_url):
         """
@@ -25,14 +26,12 @@ class QuartSecurityHandlerFactory(AbstractAsyncSecurityHandlerFactory):
         :type token_info_url: str
         :rtype: types.FunctionType
         """
-        # TODO: Check if better to use other async library such as httpx
         async def wrapper(token):
-            if not self.client_session:
-                # Must be created in a coroutine
-                self.client_session = aiohttp.ClientSession()
             headers = {'Authorization': 'Bearer {}'.format(token)}
-            token_request = await self.client_session.get(token_info_url, headers=headers, timeout=5)
-            if token_request.status != 200:
+            token_request = await client.get(token_info_url, headers=headers, timeout=5)
+            try:
+                token_request.raise_for_status()
+            except httpx.HTTPError:
                 return None
             return token_request.json()
         return wrapper
