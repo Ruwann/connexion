@@ -44,5 +44,13 @@ except ImportError as e:  # pragma: no cover
     AioHttpApi = _aiohttp_not_installed_error
     AioHttpApp = _aiohttp_not_installed_error
 
+try:
+    from .apis.starlette_api import StarletteApi
+    from .apps.starlette_app import StarletteApp
+except ImportError as e:  # pragma: no cover
+    _starlette_not_installed_error = not_installed_error(e)
+    StarletteApi = _starlette_not_installed_error
+    StarletteApp = _starlette_not_installed_error
+
 # This version is replaced during release process.
 __version__ = '2020.0.dev1'
