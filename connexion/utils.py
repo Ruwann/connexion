@@ -184,12 +184,13 @@ def has_coroutine(function, api=None):
     this function will also look at the wrapped function.
     """
     import asyncio
+    import inspect
 
     def iscorofunc(func):
-        iscorofunc = asyncio.iscoroutinefunction(func)
+        iscorofunc = inspect.iscoroutinefunction(func)
         while not iscorofunc and hasattr(func, '__wrapped__'):
             func = func.__wrapped__
-            iscorofunc = asyncio.iscoroutinefunction(func)
+            iscorofunc = inspect.iscoroutinefunction(func)
         return iscorofunc
 
     if api is None:
