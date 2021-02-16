@@ -94,6 +94,12 @@ class QuartApp(AbstractApp):
         logger.debug('Starting %s HTTP server..', self.server, extra=vars(self))
         if self.server == 'hypercorn':
             self.app.run(self.host, port=self.port, debug=self.debug, **options)
+        elif self.server == 'uvicorn':
+            try:
+                import uvicorn
+            except ImportError:
+                raise Exception('uvicorn library not installed')
+            uvicorn.run(self.app, host=self.host, port=self.port, debug=self.debug, **options)
         else:
             raise Exception('Server {} not recognized'.format(self.server))
 
