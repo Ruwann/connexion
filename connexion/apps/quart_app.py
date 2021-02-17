@@ -5,7 +5,7 @@ import hypercorn
 import quart
 from quart.json import JSONEncoder
 
-from .abstract import AbstractApp
+from .flasklike_app import FlaskLikeApp
 from ..apis.quart_api import QuartApi
 from ..exceptions import ProblemException
 from ..problem import problem
@@ -13,10 +13,11 @@ from ..problem import problem
 logger = logging.getLogger('connexion.apps.quart_app')
 
 
-class QuartApp(AbstractApp):
+class QuartApp(FlaskLikeApp):
 
     def __init__(self, import_name, server='hypercorn', **kwargs):
         super().__init__(import_name, QuartApi, server=server, **kwargs)
+        self.framework = quart
 
     def create_app(self):
         app = quart.Quart(self.import_name, **self.server_args)
