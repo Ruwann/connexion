@@ -104,6 +104,16 @@ class QuartApp(AbstractApp):
             raise Exception('Server {} not recognized'.format(self.server))
 
 
+    async def __call__(self, scope, receive, send):  # pragma: no cover
+        """
+        Makes the class ASGI-compliant.
+        The related :meth:`~quart.app.Quart.asgi_app` is called,
+        allowing for middleware usage whilst keeping the top level app
+        a :class:`~quart.app.Quart` instance.
+        """
+        await self.app.asgi_app(scope, receive, send)
+
+
 class QuartJSONEncoder(JSONEncoder):
 
     def default(self, object_):
