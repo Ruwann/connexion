@@ -47,6 +47,7 @@ except ImportError as e:  # pragma: no cover
 try:
     from .apis.quart_api import QuartApi
     from .apps.quart_app import QuartApp
+    from quart import request
 except ImportError as e: # pragma: no cover
     _quart_not_installed_error = not_installed_error(e)
     QuartApi = _quart_not_installed_error
