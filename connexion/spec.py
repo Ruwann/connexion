@@ -9,9 +9,13 @@ import pathlib
 from collections.abc import Mapping
 from urllib.parse import urlsplit
 
+try:
+    from importlib.resources import files as importlib_files
+except ImportError:
+    from importlib_resources import files as importlib_files
+
 import jinja2
 import jsonschema
-import pkg_resources
 import yaml
 from jsonschema import Draft4Validator
 from jsonschema.validators import extend as extend_validator
@@ -206,9 +210,9 @@ class Swagger2Specification(Specification):
     yaml_name = 'swagger.yaml'
     operation_cls = Swagger2Operation
 
-    schema_string = pkg_resources.resource_string('connexion', 'resources/schemas/v2.0/schema.json')
-    openapi_schema = json.loads(schema_string.decode('utf-8'))
-    del schema_string
+    openapi_schema = json.loads(
+        importlib_files('connexion').joinpath('resources/schemas/v2.0/schema.json').read_text()
+    )
 
     @classmethod
     def _set_defaults(cls, spec):
@@ -259,9 +263,9 @@ class OpenAPISpecification(Specification):
     yaml_name = 'openapi.yaml'
     operation_cls = OpenAPIOperation
 
-    schema_string = pkg_resources.resource_string('connexion', 'resources/schemas/v3.0/schema.json')
-    openapi_schema = json.loads(schema_string.decode('utf-8'))
-    del schema_string
+    openapi_schema = json.loads(
+        importlib_files('connexion').joinpath('resources/schemas/v3.0/schema.json').read_text()
+    )
 
     @classmethod
     def _set_defaults(cls, spec):
