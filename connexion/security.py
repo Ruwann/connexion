@@ -52,10 +52,9 @@ import typing as t
 
 import httpx
 
-from connexion.decorators.parameter import inspect_function_arguments
 from connexion.exceptions import OAuthProblem, OAuthResponseProblem, OAuthScopeProblem
 from connexion.lifecycle import ASGIRequest
-from connexion.utils import get_function_from_name
+from connexion.utils import get_function_from_name, inspect_function_arguments
 
 logger = logging.getLogger(__name__)
 
