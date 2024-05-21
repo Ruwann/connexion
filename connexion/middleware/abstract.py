@@ -165,7 +165,7 @@ class AbstractRoutingAPI(AbstractSpecAPI, t.Generic[OP]):
     ) -> None:
         url = f"{self.base_path}{path}"
         error_msg = f"Failed to add operation for {method.upper()} {url}"
-        logger.error(error_msg)
+        logger.exception(error_msg)
         raise exc from None
 
 
