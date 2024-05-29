@@ -166,6 +166,10 @@ Connexion has built-in validators for the ``application/json`` and ``text/plain`
 If the content type is not explicitly set, Connexion will infer it (see :ref:`response:Headers`),
 and validate the body using the corresponding validator.
 
+.. note::
+    Validators load the whole body into memory, which can be a problem for large payloads.
+    It also means that streaming responses are not supported in combination with response validation.
+
 Response headers validation
 ```````````````````````````
 
