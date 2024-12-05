@@ -1,3 +1,9 @@
+# /// script
+# dependencies = [
+#   "connexion[flask,swagger-ui,uvicorn]>=3.1.0",
+# ]
+# ///
+
 from pathlib import Path
 
 import connexion

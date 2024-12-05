@@ -27,3 +27,10 @@ Now open your browser and view the Swagger UI for these specification files:
 
 * http://localhost:8080/openapi/ui/ for the OpenAPI 3 spec
 * http://localhost:8080/swagger/ui/ for the Swagger 2 spec
+
+Alternatively, you can use `uv` to run the server, which will take care of
+dependency management for you:
+
+.. code-block:: bash
+
+    $ uv run hello.py
